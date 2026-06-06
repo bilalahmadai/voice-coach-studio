@@ -92,15 +92,42 @@ window.VCReports = (() => {
 
     return `# Voice Movement Report
 
-Use this report to give feedback on my speaking voice. Be honest, practical, and do not sugarcoat. My goal is to sound natural, clear, confident, steady, warm, and masculine/present without forcing my throat.
+Analyze this voice recording as a professional voice coach.
+
+## Coaching Goal
+
+My goal is to sound:
+
+* Natural
+* Clear
+* Confident
+* Steady
+* Warm
+* Masculine/present
+
+Important rules:
+
+* Be honest and practical.
+* Do not sugarcoat.
+* Do not explain every metric.
+* Focus only on the biggest issues in THIS recording.
+* Ignore minor problems.
+* Do not give long technical explanations.
+* Do not repeat raw numbers unless they matter.
+* Give clear next steps for the next recording.
 
 ## 1. App Context
+
 App: Voice Coach Studio Final
+
 The app uses browser microphone analysis, live transcript, word-level estimated pitch/Hz, loudness/dB, steadiness, brightness/warmth, and a selected coach agent/template.
+
 Word-level Hz is approximate. Look for patterns, not one-word perfection.
-Browser transcript may mishear words; compare transcript with intended text.
+
+Browser transcript may mishear words. Compare transcript with intended text before judging clarity.
 
 ## 2. Coach Agent Page
+
 Agent: ${agent.name}
 Agent focus: ${agent.focus.join(", ")}
 Agent cue: ${agent.cue}
@@ -116,10 +143,12 @@ Target pitch variation: ${agent.variation[0]}–${agent.variation[1]} Hz
 Target warmth/brightness: ${agent.brightness[0]}–${agent.brightness[1]} Hz
 
 ## 3. Session Numbers
+
 Started: ${new Date(session.startedAt).toLocaleString()}
 Duration: ${session.durationSec} seconds
 Words captured: ${session.wordCount}
 Transcript source: ${session.transcriptSource}
+
 Average pitch: ${round(session.avgPitch)} Hz
 Average volume: ${round(session.avgDb)} dB
 Average steadiness: ${round(session.avgStability)} / 100
@@ -133,6 +162,7 @@ Too soft: ${session.tooSoftPct}%
 Too loud: ${session.tooLoudPct}%
 
 ## 4. Word-Level Patterns
+
 Most repeated words:
 ${topWords}
 
@@ -149,28 +179,62 @@ Lowest-pitch words:
 ${wordSummary.lowestPitch}
 
 ## 5. Intended Practice Text
+
 ${session.practiceText || "No intended text saved."}
 
 ## 6. Transcript
+
 Transcript source: ${session.transcriptSource}
+
 ${session.transcript || "No transcript captured."}
 
-## 7. What I Want You To Analyze
-Please tell me:
-1. Overall how I did in simple words.
-2. Whether my pitch was too high, too low, or good for this agent.
-3. Whether my volume was too soft, too loud, or good.
-4. Which words or patterns seem unclear, dropped, too soft, or too high.
-5. What I should improve to sound more masculine/confident: pitch, volume, pace, steadiness, endings, warmth, and breath support.
-6. Top 3 improvements only.
-7. A short paragraph for my next recording.
+## 7. Response Format
 
-## 8. Next Target
-Next pitch target: ${nextPitchTarget}
-Next volume target: ${agent.volume[0]} to ${agent.volume[1]} dB
-Style target: ${agent.cue}
-Main thing to avoid: ${agent.avoid}
+Return ONLY the following sections:
+
+### Overall
+
+Write 2-3 sentences describing how the voice currently sounds.
+
+### What's Working
+
+List up to 3 strengths.
+
+### Biggest Problems
+
+List up to 3 issues hurting the voice the most.
+
+### Next Recording Focus
+
+Rank exactly 3 actions:
+
+1. Most important
+2. Second most important
+3. Third most important
+
+### What To Ignore
+
+List things the speaker should stop worrying about right now.
+
+### Next Recording Target
+
+Pitch: [Too High / Good / Too Low]
+
+Volume: [Too Soft / Good / Too Loud]
+
+Pace: [Slower / Same / Faster]
+
+Focus: [Single most important focus]
+
+Avoid: [Single biggest mistake]
+
+### One Sentence Reminder
+
+Give one short sentence the speaker should remember before pressing Record.
+
+Keep the entire response under 250 words.
 `;
+
   }
 
   return {

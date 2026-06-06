@@ -1,6 +1,6 @@
 (() => {
   const { agents, templates, getAgent, getTemplate } = window.VCData;
-  const { CONSTANTS, getRms, detectPitch, getSpectralCentroid } = window.VCAudio;
+  const { CONSTANTS, getRms, detectPitchBest, getSpectralCentroid } = window.VCAudio;
   const UI = window.VCUI;
   const Reports = window.VCReports;
 
@@ -32,6 +32,7 @@
     audioChunks: [],
     lastAveragePitch: stateFromStorage.sessions?.[0]?.avgPitch ?? null,
     sessionStartTime: null,
+    sessionStartWallMs: null,
     confirmedWordProgress: 0,
     spokenProgressMax: 0,
     lastKnownPitch: null,
@@ -42,14 +43,35 @@
 
   function init() {
     bindEvents();
+    window.VCPractice.init({
+      onRecordingChange: syncNavRecordingState
+    });
     renderAll();
     UI.renderPrompt(state.report);
     UI.renderSummaryContent(state.currentSession);
     UI.renderHistory(state.sessions);
     drawPitch();
+    window.VCLiveChart?.init();
+    window.VCLiveChart?.refreshAgent(getAgent(state.selectedAgent));
+  }
+
+  function syncNavRecordingState(isRecording) {
+    if (!window.VCPractice.isVisible()) return;
+    document.getElementById("startBtn").disabled = isRecording;
+    document.getElementById("stopBtn").disabled = !isRecording;
+    UI.setRecordingState(isRecording, isRecording ? "Drill recording" : "Session off");
   }
 
   function bindEvents() {
+    document.getElementById("trainingModeBtn").addEventListener("click", () => {
+      if (window.VCPractice.isVisible()) {
+        window.VCPractice.hide();
+        UI.setRecordingState(false, "Session off");
+      } else {
+        window.VCPractice.show();
+      }
+    });
+
     document.getElementById("libraryBtn").addEventListener("click", () => {
       renderLibrary();
       UI.openLibrary();
@@ -81,8 +103,20 @@
       if (event.target === UI.els.summaryModal) UI.closeSummaryModal();
     });
 
-    document.getElementById("startBtn").addEventListener("click", startRecording);
-    document.getElementById("stopBtn").addEventListener("click", stopRecording);
+    document.getElementById("startBtn").addEventListener("click", () => {
+      if (window.VCPractice.isVisible()) {
+        window.VCPractice.startDrill();
+        return;
+      }
+      startRecording();
+    });
+    document.getElementById("stopBtn").addEventListener("click", () => {
+      if (window.VCPractice.isVisible()) {
+        window.VCPractice.stopDrill();
+        return;
+      }
+      stopRecording();
+    });
     document.getElementById("resetBtn").addEventListener("click", resetWorkspace);
     document.getElementById("downloadCsvBtn").addEventListener("click", downloadCurrentSessionCsv);
 
@@ -156,6 +190,7 @@
     });
     renderLibrary();
     saveState();
+    window.VCLiveChart?.refreshAgent(agent);
   }
 
   function refreshSpeakAlong(updateSelection = false) {
@@ -244,6 +279,11 @@
     try {
       resetLive({ clearAvgLine: true });
       state.sessionStartTime = performance.now();
+      state.sessionStartWallMs = Date.now();
+      window.VCLiveChart?.reset({
+        agent: getAgent(state.selectedAgent),
+        sessionStartWallMs: state.sessionStartWallMs
+      });
 
       state.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -360,6 +400,7 @@
     state.lastKnownPitch = null;
     state.lastAveragePitch = clearAvgLine ? null : (state.currentSession?.avgPitch ?? null);
     state.sessionStartTime = null;
+    state.sessionStartWallMs = null;
 
     refreshSpeakAlong();
 
@@ -370,6 +411,8 @@
       analysis: getSilenceAnalysis()
     });
     drawPitch();
+    window.VCLiveChart?.reset({ agent: getAgent(state.selectedAgent) });
+    window.VCLiveChart?.setIdleState();
   }
 
   function resetWorkspace() {
@@ -393,7 +436,13 @@
 
     const rms = getRms(state.timeBuffer);
     const db = rms > 0 ? 20 * Math.log10(rms) : CONSTANTS.volumeMin;
-    const pitch = detectPitch(state.timeBuffer, state.audioContext.sampleRate, db);
+    const pitch = detectPitchBest(
+      state.timeBuffer,
+      state.freqBuffer,
+      state.audioContext.sampleRate,
+      state.analyser.fftSize,
+      db
+    );
     const brightness = getSpectralCentroid(state.freqBuffer, state.audioContext.sampleRate, state.analyser.fftSize);
     updateMetrics({ db, pitch, brightness });
 
@@ -440,6 +489,12 @@
     const analysis = analyzeLive(agent, sample, pitchStd);
     UI.updateMetricCards({ sample, agent, score: analysis.score, analysis });
     drawPitch();
+    window.VCLiveChart?.pushPoint({
+      sample,
+      agent,
+      elapsed,
+      sessionStartWallMs: state.sessionStartWallMs
+    });
   }
 
   function analyzeLive(agent, sample, pitchStd) {

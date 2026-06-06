@@ -4,7 +4,8 @@ window.VCStorage = (() => {
     words: "voiceCoachFinal_words",
     report: "voiceCoachFinal_lastReport",
     selectedAgent: "voiceCoachFinal_selectedAgent",
-    selectedTemplate: "voiceCoachFinal_selectedTemplate"
+    selectedTemplate: "voiceCoachFinal_selectedTemplate",
+    practiceProgress: "voiceCoachFinal_practiceProgress"
   };
 
   function loadJson(key, fallback) {
@@ -45,5 +46,13 @@ window.VCStorage = (() => {
     Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
   }
 
-  return { loadState, saveState, clearAll };
+  function loadPracticeProgress() {
+    return loadJson(KEYS.practiceProgress, {});
+  }
+
+  function savePracticeProgress(progress) {
+    saveJson(KEYS.practiceProgress, progress || {});
+  }
+
+  return { loadState, saveState, clearAll, loadPracticeProgress, savePracticeProgress };
 })();

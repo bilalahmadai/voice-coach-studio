@@ -39,6 +39,7 @@ body {
     var(--bg);
   color: var(--text);
   padding-bottom: calc(var(--nav-height) + 24px);
+  overflow-x: hidden;
 }
 
 button,
@@ -359,6 +360,8 @@ p {
 
 .canvas-scroll {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   border: 1px solid var(--soft-line);
@@ -466,6 +469,173 @@ p {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.live-chart-section {
+  padding: 14px 16px;
+}
+
+.chart-metric-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chart-metric-btn {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .14s ease, border-color .14s ease, color .14s ease;
+}
+
+.chart-metric-btn.active {
+  color: #dbeafe;
+  border-color: rgba(96, 165, 250, 0.55);
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.live-chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 10px 0 8px;
+  flex-wrap: wrap;
+}
+
+.live-chart-head-label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.live-chart-current {
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #93c5fd;
+}
+
+.live-chart-target {
+  font-size: 12px;
+  text-align: right;
+}
+
+.live-chart-container {
+  width: 100%;
+  min-height: 380px;
+  border-radius: 14px;
+  overflow: visible;
+  border: 1px solid var(--soft-line);
+  background: rgba(0,0,0,0.18);
+  padding-top: 4px;
+}
+
+.live-chart-container .highcharts-container,
+.live-chart-container .highcharts-root {
+  width: 100% !important;
+}
+
+.live-chart-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-fs-btn {
+  white-space: nowrap;
+}
+
+.live-chart-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: none;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(96, 165, 250, 0.14), transparent 32%),
+    radial-gradient(circle at 92% 8%, rgba(167, 139, 250, 0.10), transparent 28%),
+    var(--bg);
+  padding: 14px 16px calc(var(--nav-height) + 14px);
+}
+
+.live-chart-fullscreen.open {
+  display: block;
+}
+
+body.live-chart-fullscreen-open {
+  overflow: hidden;
+}
+
+.live-chart-fs-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.live-chart-fs-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+  box-shadow: var(--shadow);
+}
+
+.live-chart-fs-intent {
+  flex: 0 0 auto;
+  max-height: min(34vh, 260px);
+  overflow: auto;
+}
+
+.live-chart-fs-intent .live-intent-col {
+  border: 1px solid var(--soft-line);
+  border-radius: 14px;
+  background: rgba(0,0,0,0.16);
+  padding: 10px;
+  min-height: 0;
+}
+
+.live-chart-fs-intent .intent-text-box {
+  max-height: min(22vh, 160px);
+}
+
+.live-chart-fs-controls {
+  flex: 0 0 auto;
+}
+
+.live-chart-fs-controls .live-chart-controls-row {
+  justify-content: space-between;
+}
+
+.live-chart-fs-head {
+  flex: 0 0 auto;
+}
+
+.live-chart-fs-chart {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.live-chart-fs-chart .live-chart-container {
+  flex: 1 1 auto;
+  min-height: 300px;
+  height: 100%;
 }
 
 .live-workspace {
@@ -693,7 +863,7 @@ audio {
   left: 50%;
   bottom: 12px;
   transform: translateX(-50%);
-  width: min(560px, calc(100% - 16px));
+  width: min(640px, calc(100% - 16px));
   height: var(--nav-height);
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,0.10);
@@ -708,7 +878,7 @@ audio {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   gap: 3px;
   height: 100%;
   align-items: stretch;
@@ -898,6 +1068,429 @@ audio {
 
 .nav-csv:hover:not(:disabled) .nav-label {
   color: #c7d2fe;
+}
+
+.nav-training {
+  color: #fcd34d;
+  border-color: rgba(251, 191, 36, 0.32);
+}
+
+.nav-training .nav-label {
+  color: #fbbf24;
+}
+
+.nav-training:hover:not(:disabled),
+.nav-training.nav-active {
+  background: rgba(180, 83, 9, 0.22);
+  border-color: rgba(251, 191, 36, 0.52);
+  color: #fef3c7;
+}
+
+.nav-training:hover:not(:disabled) .nav-label,
+.nav-training.nav-active .nav-label {
+  color: #fde68a;
+}
+
+.hidden-view {
+  display: none !important;
+}
+
+/* Training / Practice Mode */
+.practice-shell {
+  display: none;
+  width: min(1200px, calc(100% - 24px));
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 16px 0 20px;
+  overflow-x: hidden;
+}
+
+.practice-shell.active {
+  display: block;
+}
+
+.practice-hero {
+  display: grid;
+  grid-template-columns: 1.4fr 0.6fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.practice-hero > div:first-child,
+.practice-progress-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 18px 20px;
+}
+
+.back-coach-btn {
+  margin-bottom: 10px;
+}
+
+.level-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.level-tab {
+  flex: 0 0 auto;
+  min-width: 130px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.04);
+  color: var(--muted);
+  cursor: pointer;
+  text-align: left;
+  display: grid;
+  gap: 2px;
+  transition: background .14s ease, border-color .14s ease, color .14s ease;
+}
+
+.level-tab.active {
+  border-color: rgba(96, 165, 250, 0.55);
+  background: rgba(59, 130, 246, 0.16);
+  color: var(--text);
+}
+
+.level-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--info);
+}
+
+.level-title {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.level-progress {
+  font-size: 11px;
+  color: var(--good);
+}
+
+.practice-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: 12px;
+  align-items: start;
+  min-width: 0;
+}
+
+.practice-sidebar {
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  border-radius: var(--radius);
+  padding: 14px;
+  max-height: calc(100vh - 280px);
+  overflow: auto;
+  min-width: 0;
+}
+
+.drill-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.drill-card {
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--soft-line);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: border-color .14s ease, background .14s ease;
+}
+
+.drill-card:hover {
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+.drill-card.active {
+  border-color: rgba(96, 165, 250, 0.65);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.drill-card.passed {
+  border-color: rgba(54, 211, 153, 0.35);
+}
+
+.drill-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.drill-card h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.drill-card .muted {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.drill-pass-badge {
+  color: var(--good);
+  font-size: 12px;
+}
+
+.drill-best {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--info);
+}
+
+.difficulty.beginner { color: var(--good); }
+.difficulty.intermediate { color: var(--warn); }
+.difficulty.advanced { color: var(--bad); }
+
+.practice-main {
+  padding: 16px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.drill-detail-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.drill-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.drill-timer-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.drill-goal {
+  margin-top: 4px;
+}
+
+.drill-score-box {
+  text-align: right;
+  min-width: 80px;
+}
+
+.drill-live-score {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--info);
+}
+
+.drill-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.drill-instructions {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.drill-speak-box {
+  margin-bottom: 12px;
+}
+
+.practice-viz-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 12px 0;
+  min-width: 0;
+}
+
+.viz-panel {
+  border: 1px solid var(--soft-line);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255,255,255,0.02);
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.viz-panel .canvas-scroll {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.18);
+}
+
+.viz-panel .canvas-scroll canvas {
+  display: block;
+  width: 100%;
+  min-width: 100%;
+  height: 160px;
+}
+
+.viz-panel.hidden-panel {
+  display: none;
+}
+
+.ending-panel {
+  grid-column: span 1;
+}
+
+.ending-feedback {
+  font-size: 14px;
+  color: var(--warn);
+  padding: 8px 4px;
+}
+
+.drill-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.practice-audio-box {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.04);
+}
+
+.practice-audio-box.hidden-panel {
+  display: none;
+}
+
+.practice-audio-box audio {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.practice-recorded-transcript {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--soft-line);
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.9), rgba(37,99,235,0.95));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(96, 165, 250, 0.5);
+}
+
+.primary-btn.compact-btn {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.practice-result-panel {
+  display: none;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.04);
+}
+
+.practice-result-panel.open {
+  display: block;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.result-header i {
+  font-size: 28px;
+}
+
+.result-header.pass i { color: var(--good); }
+.result-header.fail i { color: var(--warn); }
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.result-stat {
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--soft-line);
+}
+
+.result-stat span {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.result-stat b {
+  font-size: 14px;
+}
+
+.result-target {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--good);
+  font-weight: 600;
+}
+
+.result-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--warn);
+  line-height: 1.35;
+}
+
+.result-issue {
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
 .ghost-btn,
@@ -1256,6 +1849,22 @@ body.modal-open {
   .summary-modal-grid {
     grid-template-columns: 1fr;
   }
+
+  .practice-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-sidebar {
+    max-height: none;
+  }
+
+  .result-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 720px) {
@@ -1354,7 +1963,44 @@ body.modal-open {
     max-height: 260px;
   }
 
+  .live-chart-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .live-chart-target {
+    text-align: left;
+  }
+
+  .chart-metric-tabs {
+    width: 100%;
+  }
+
   .metric-target {
     display: none;
+  }
+
+  .practice-viz-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ending-panel {
+    grid-column: span 1;
+  }
+
+  .drill-detail-head {
+    flex-direction: column;
+  }
+
+  .drill-live-score {
+    font-size: 28px;
+  }
+
+  .result-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bottom-nav {
+    width: min(100% - 8px, 640px);
   }
 }

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div id="coachView" class="app-shell">
     <header class="top-hero">
       <div>
         <div class="status-pill">
@@ -77,6 +77,35 @@
         </div>
       </section>
 
+      <section class="card span-12 live-chart-section">
+        <div class="section-head compact-head">
+          <div>
+            <div class="eyebrow">Live monitor</div>
+            <h2>Voice movement chart</h2>
+            <p id="liveChartSubtitle" class="muted">Start recording to build a live line.</p>
+          </div>
+          <div id="liveChartControlsRow" class="live-chart-controls-row">
+            <div class="chart-metric-tabs" role="tablist" aria-label="Chart metric">
+              <button class="chart-metric-btn active" type="button" data-live-metric="pitch" aria-selected="true">Pitch</button>
+              <button class="chart-metric-btn" type="button" data-live-metric="volume" aria-selected="false">Volume</button>
+              <button class="chart-metric-btn" type="button" data-live-metric="steadiness" aria-selected="false">Steadiness</button>
+              <button class="chart-metric-btn" type="button" data-live-metric="brightness" aria-selected="false">Warmth</button>
+            </div>
+            <button id="toggleChartFullscreenBtn" class="ghost-btn compact-btn chart-fs-btn" type="button" title="Fullscreen chart">
+              <i class="fa-solid fa-expand"></i> Fullscreen
+            </button>
+          </div>
+        </div>
+        <div id="liveChartHeadRow" class="live-chart-head">
+          <div>
+            <span class="live-chart-head-label">Live now</span>
+            <span id="liveChartCurrentValue" class="live-chart-current">-- Hz</span>
+          </div>
+          <span id="liveChartTargetLabel" class="live-chart-target muted">Target 130–145 Hz</span>
+        </div>
+        <div id="liveChartContainer" class="live-chart-container"></div>
+      </section>
+
       <section class="card span-12 live-workspace">
         <div class="section-head compact-head">
           <div>
@@ -94,7 +123,7 @@
         </div>
 
         <div class="live-grid">
-          <div class="live-intent-col">
+          <div id="liveIntentPanel" class="live-intent-col">
             <div class="speak-panel-head">
               <span class="speak-panel-title"><i class="fa-solid fa-bullseye"></i> Intent script</span>
               <button id="copyIntentBtn" class="icon-text-btn" type="button" title="Copy intent script">
@@ -192,8 +221,138 @@
     </main>
   </div>
 
+  <div id="practiceView" class="practice-shell" aria-hidden="true">
+    <header class="practice-hero">
+      <div>
+        <button id="backToCoachBtn" class="ghost-btn compact-btn back-coach-btn" type="button">
+          <i class="fa-solid fa-arrow-left"></i> Live Coach
+        </button>
+        <div class="eyebrow">Training Mode</div>
+        <h1>Practice Voice</h1>
+        <p class="hero-desc">Structured drills from beginner to advanced — volume first, then pitch, then emotion.</p>
+        <div id="practiceGuideStrip" class="guidance-strip"></div>
+      </div>
+      <div class="hero-card practice-progress-card">
+        <div class="eyebrow">Progress</div>
+        <div id="practiceProgressSummary" class="hero-card-title">0 / 0 drills passed</div>
+        <div class="hero-card-text">Complete drills to unlock steady, warm, confident speech.</div>
+      </div>
+    </header>
+
+    <div id="practiceLevelTabs" class="level-tabs"></div>
+
+    <div class="practice-layout">
+      <aside class="practice-sidebar">
+        <div class="section-head compact-head">
+          <div>
+            <div class="eyebrow">Drills</div>
+            <h2>Pick a drill</h2>
+          </div>
+        </div>
+        <div id="practiceDrillGrid" class="drill-grid"></div>
+      </aside>
+
+      <section class="practice-main card">
+        <div class="drill-detail-head">
+          <div>
+            <div class="drill-meta-row">
+              <span id="practiceDrillDifficulty" class="difficulty beginner">Beginner</span>
+              <span class="drill-timer-label"><i class="fa-regular fa-clock"></i> <span id="practiceTimer">0:30</span></span>
+            </div>
+            <h2 id="practiceDrillName">Drill name</h2>
+            <p id="practiceDrillGoal" class="muted drill-goal"></p>
+          </div>
+          <div class="drill-score-box">
+            <div class="eyebrow">Live score</div>
+            <div id="practiceLiveScore" class="drill-live-score">--</div>
+          </div>
+        </div>
+
+        <div class="drill-targets">
+          <span class="guidance-chip">Pitch: <b id="practicePitchTarget">--</b></span>
+          <span class="guidance-chip">Volume: <b id="practiceVolumeTarget">--</b></span>
+          <span class="guidance-chip">Steadiness: <b id="practiceSteadinessTarget">--</b></span>
+        </div>
+
+        <p id="practiceDrillInstructions" class="drill-instructions"></p>
+
+        <div class="drill-speak-box">
+          <div class="speak-panel-head">
+            <span class="speak-panel-title"><i class="fa-solid fa-bullseye"></i> Speak this</span>
+          </div>
+          <div id="practiceDrillText" class="intent-text-box intent-text-live"></div>
+        </div>
+
+        <div id="practiceLiveTip" class="coach-tip"></div>
+
+        <div class="practice-viz-grid">
+          <div id="practiceVolumePanel" class="viz-panel">
+            <div class="speak-panel-head">
+              <span class="speak-panel-title"><i class="fa-solid fa-volume-high"></i> Volume</span>
+            </div>
+            <div id="practiceVolumeScroll" class="canvas-scroll">
+              <canvas id="practiceVolumeCanvas" width="320" height="160"></canvas>
+            </div>
+          </div>
+          <div id="practicePitchPanel" class="viz-panel">
+            <div class="speak-panel-head">
+              <span class="speak-panel-title"><i class="fa-solid fa-chart-line"></i> Pitch movement</span>
+            </div>
+            <div id="practicePitchScroll" class="canvas-scroll">
+              <canvas id="practicePitchCanvas" width="320" height="160"></canvas>
+            </div>
+          </div>
+          <div id="practiceSteadinessPanel" class="viz-panel">
+            <div class="speak-panel-head">
+              <span class="speak-panel-title"><i class="fa-solid fa-grip-lines"></i> Steadiness</span>
+            </div>
+            <div id="practiceSteadinessScroll" class="canvas-scroll">
+              <canvas id="practiceSteadinessCanvas" width="320" height="160"></canvas>
+            </div>
+          </div>
+          <div id="practiceEndingPanel" class="viz-panel ending-panel hidden-panel">
+            <div class="speak-panel-head">
+              <span class="speak-panel-title"><i class="fa-solid fa-arrow-down"></i> Sentence ending</span>
+            </div>
+            <p id="practiceEndingFeedback" class="ending-feedback">Ending analysis appears after you speak.</p>
+          </div>
+        </div>
+
+        <div class="drill-actions">
+          <button id="practiceStartDrillBtn" class="primary-btn" type="button">
+            <i class="fa-solid fa-circle-play"></i> Start drill
+          </button>
+          <button id="practiceStopDrillBtn" class="danger-soft compact-btn" type="button" disabled>
+            <i class="fa-solid fa-circle-stop"></i> Stop drill
+          </button>
+        </div>
+
+        <div id="practiceAudioBox" class="practice-audio-box hidden-panel"></div>
+
+        <div id="practiceResultPanel" class="practice-result-panel">
+          <div id="practiceResultContent"></div>
+          <div class="result-actions">
+            <button id="practiceRetryDrillBtn" class="ghost-btn compact-btn" type="button">
+              <i class="fa-solid fa-rotate-left"></i> Retry
+            </button>
+            <button id="practiceNextDrillBtn" class="primary-btn compact-btn" type="button">
+              Next drill <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button id="practiceCloseResultBtn" class="ghost-btn compact-btn" type="button">Close</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
   <nav class="bottom-nav" aria-label="Voice coach actions">
     <ul class="nav-list">
+      <li>
+        <button id="trainingModeBtn" class="nav-btn nav-training" type="button" data-title="Training Mode" aria-label="Training Mode">
+          <i class="fa-solid fa-dumbbell"></i>
+          <span class="nav-label">Training</span>
+        </button>
+      </li>
       <li>
         <button id="libraryBtn" class="nav-btn nav-library" type="button" data-title="Library" aria-label="Library">
           <i class="fa-solid fa-book"></i>
@@ -323,14 +482,36 @@
     </div>
   </div>
 
+  <div id="liveChartFullscreen" class="live-chart-fullscreen" aria-hidden="true">
+    <div class="live-chart-fs-inner">
+      <header class="live-chart-fs-bar">
+        <div>
+          <div class="eyebrow">Live monitor</div>
+          <h2 id="liveChartFsTitle">Voice movement chart</h2>
+          <p id="liveChartFsSubtitle" class="muted">Intent script on top · chart fills the screen</p>
+        </div>
+        <button id="exitChartFullscreenBtn" class="ghost-btn compact-btn" type="button">
+          <i class="fa-solid fa-compress"></i> Exit fullscreen
+        </button>
+      </header>
+      <div id="liveChartFsIntentSlot" class="live-chart-fs-intent"></div>
+      <div id="liveChartFsControlsSlot" class="live-chart-fs-controls"></div>
+      <div id="liveChartFsHeadSlot" class="live-chart-fs-head"></div>
+      <div id="liveChartFsChartSlot" class="live-chart-fs-chart"></div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" role="status"></div>
 
+  <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="js/data.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/speech.js"></script>
   <script src="js/reports.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/livechart.js"></script>
+  <script src="js/practice.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
