@@ -1,5 +1,7 @@
 # Voice Coach Studio - Final
 
+[Live](https://bilalahmadai.github.io/voice-coach-studio/)
+
 Open `index.html` in Chrome or Edge.
 
 Recommended:
