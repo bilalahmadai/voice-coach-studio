@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice Coach Studio - Final</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-hero">
+      <div>
+        <div class="status-pill">
+          <span id="liveDot" class="status-dot"></span>
+          <span id="liveLabel">Session off</span>
+        </div>
+        <h1>Voice Coach Studio</h1>
+        <p class="hero-desc">Live pitch, volume, steadiness, and speak-along coaching in one compact view.</p>
+      </div>
+      <div class="hero-card">
+        <div class="eyebrow">Selected</div>
+        <div id="selectedCoachName" class="hero-card-title">Calm Masculine Agent</div>
+        <div id="selectedCoachTarget" class="hero-card-text">Pitch 130–145 Hz · Volume -38 to -32 dB</div>
+        <div id="selectedTemplateMeta" class="hero-template-meta">Masculine Presence Drill · Mid-high</div>
+      </div>
+    </header>
+
+    <main class="content-grid">
+      <section class="metric-card span-3">
+        <div class="metric-head">
+          <div class="metric-label">Estimated pitch</div>
+          <div id="pitchTargetLabel" class="metric-target">Target 130–145 Hz</div>
+        </div>
+        <div class="metric-value"><span id="pitchValue">--</span><small>Hz</small></div>
+        <div id="pitchStatus" class="metric-status">Waiting for speech.</div>
+        <div class="meter">
+          <div id="pitchTarget" class="target-band"></div>
+          <div id="pitchFill" class="meter-fill"></div>
+        </div>
+      </section>
+
+      <section class="metric-card span-3">
+        <div class="metric-head">
+          <div class="metric-label">Loudness</div>
+          <div id="volumeTargetLabel" class="metric-target">Target -38 to -32 dB</div>
+        </div>
+        <div class="metric-value"><span id="volumeValue">--</span><small>dB</small></div>
+        <div id="volumeStatus" class="metric-status">Approximate mic level.</div>
+        <div class="meter">
+          <div id="volumeTarget" class="target-band"></div>
+          <div id="volumeFill" class="meter-fill"></div>
+        </div>
+      </section>
+
+      <section class="metric-card span-3">
+        <div class="metric-head">
+          <div class="metric-label">Steadiness</div>
+          <div id="stabilityTargetLabel" class="metric-target">Smooth variation</div>
+        </div>
+        <div class="metric-value"><span id="stabilityValue">--</span><small>/100</small></div>
+        <div id="stabilityStatus" class="metric-status">Pitch control while speaking.</div>
+        <div class="meter">
+          <div id="stabilityFill" class="meter-fill"></div>
+        </div>
+      </section>
+
+      <section class="metric-card span-3">
+        <div class="metric-head">
+          <div class="metric-label">Warmth / brightness</div>
+          <div id="brightnessTargetLabel" class="metric-target">Coach range</div>
+        </div>
+        <div class="metric-value"><span id="brightnessValue">--</span><small>Hz</small></div>
+        <div id="brightnessStatus" class="metric-status">Appears only while speaking.</div>
+        <div class="meter">
+          <div id="brightnessFill" class="meter-fill"></div>
+        </div>
+      </section>
+
+      <section class="card span-12 live-workspace">
+        <div class="section-head compact-head">
+          <div>
+            <div class="eyebrow">Live coaching</div>
+            <h2 id="selectedTemplateTitle">Masculine Presence Drill</h2>
+          </div>
+          <div class="speak-actions">
+            <button id="editTextBtn" class="ghost-btn compact-btn" type="button" title="Edit intent script">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            <button id="clearTranscriptBtn" class="ghost-btn compact-btn" type="button" title="Clear spoken transcript">
+              <i class="fa-solid fa-eraser"></i> Clear
+            </button>
+          </div>
+        </div>
+
+        <div class="live-grid">
+          <div class="live-intent-col">
+            <div class="speak-panel-head">
+              <span class="speak-panel-title"><i class="fa-solid fa-bullseye"></i> Intent script</span>
+              <button id="copyIntentBtn" class="icon-text-btn" type="button" title="Copy intent script">
+                <i class="fa-regular fa-copy"></i> Copy
+              </button>
+            </div>
+            <div id="intentTextBox" class="intent-text-box intent-text-live">
+              <span class="placeholder">Select a template from Library to load the practice script.</span>
+            </div>
+            <textarea id="practiceText" class="practice-text hidden-edit" spellcheck="true"></textarea>
+            <div id="agentGuidance" class="guidance-strip"></div>
+          </div>
+
+          <div class="live-pitch-col">
+            <div class="speak-panel-head">
+              <span class="speak-panel-title"><i class="fa-solid fa-chart-line"></i> Pitch movement</span>
+              <label class="toggle-row" title="Show or hide the orange average pitch line">
+                <input id="showAvgLineToggle" type="checkbox" checked />
+                <span>Avg line</span>
+              </label>
+            </div>
+            <p id="pitchDuration" class="muted pitch-duration">Total: 0:00</p>
+            <div id="pitchScroll" class="canvas-scroll">
+              <canvas id="pitchCanvas" width="1400" height="220"></canvas>
+            </div>
+            <div class="pitch-legend">
+              <span class="legend-item target"><i class="fa-solid fa-square"></i> Target</span>
+              <span class="legend-item avg"><i class="fa-solid fa-minus"></i> Avg</span>
+              <span class="legend-item live"><i class="fa-solid fa-chart-line"></i> Live</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="live-transcript-row">
+          <div class="speak-panel-head">
+            <span class="speak-panel-title"><i class="fa-solid fa-microphone"></i> My spoken transcript</span>
+            <button id="copyTranscriptBtn" class="icon-text-btn" type="button" title="Copy spoken transcript">
+              <i class="fa-regular fa-copy"></i> Copy
+            </button>
+          </div>
+          <div id="transcriptBox" class="transcript-box transcript-compact">
+            <span class="placeholder">Start recording and speak. Words appear here in real time.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-12 score-card">
+        <div class="section-head compact">
+          <div>
+            <div class="eyebrow">Live score</div>
+            <h2>Session quality</h2>
+          </div>
+          <div class="score-number" id="scoreValue">--</div>
+        </div>
+        <div id="scorePills" class="pill-wrap">
+          <span class="pill">Waiting for voice</span>
+        </div>
+        <div id="tipsBox" class="coach-tip">
+          <strong>Ready:</strong> pick a template from Library, start recording, and read the text slowly.
+        </div>
+      </section>
+
+      <section class="card span-12 history-section">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Saved reports history</div>
+            <h2>Past sessions in this browser</h2>
+          </div>
+          <button id="clearHistoryBtn" class="danger-soft compact-btn" type="button">
+            <i class="fa-solid fa-trash-can"></i> Clear history
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date/time</th>
+                <th>Coach</th>
+                <th>Template</th>
+                <th>Difficulty</th>
+                <th>Duration</th>
+                <th>Words</th>
+                <th>Avg Hz</th>
+                <th>Avg dB</th>
+                <th>Score</th>
+                <th>Download</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr><td colspan="10">No history yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Voice coach actions">
+    <ul class="nav-list">
+      <li>
+        <button id="libraryBtn" class="nav-btn nav-library" type="button" data-title="Library" aria-label="Library">
+          <i class="fa-solid fa-book"></i>
+          <span class="nav-label">Library</span>
+        </button>
+      </li>
+      <li>
+        <button id="startBtn" class="nav-btn nav-start" type="button" data-title="Start recording" aria-label="Start recording">
+          <i class="fa-solid fa-circle-play"></i>
+          <span class="nav-label">Start</span>
+        </button>
+      </li>
+      <li>
+        <button id="stopBtn" class="nav-btn nav-stop" type="button" data-title="Stop recording" aria-label="Stop recording" disabled>
+          <i class="fa-solid fa-circle-stop"></i>
+          <span class="nav-label">Stop</span>
+        </button>
+      </li>
+      <li>
+        <button id="resetBtn" class="nav-btn nav-reset" type="button" data-title="Reset session" aria-label="Reset session">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span class="nav-label">Reset</span>
+        </button>
+      </li>
+      <li>
+        <button id="promptBtn" class="nav-btn nav-accent" type="button" data-title="ChatGPT prompt" aria-label="ChatGPT prompt">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span class="nav-label">Prompt</span>
+        </button>
+      </li>
+      <li>
+        <button id="summaryBtn" class="nav-btn nav-summary" type="button" data-title="Session summary" aria-label="Session summary">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="nav-label">Summary</span>
+        </button>
+      </li>
+      <li>
+        <button id="downloadCsvBtn" class="nav-btn nav-csv" type="button" data-title="Download current session CSV" aria-label="Download current session CSV">
+          <i class="fa-solid fa-download"></i>
+          <span class="nav-label">CSV</span>
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <div id="libraryModal" class="modal-backdrop modal-backdrop-centered" aria-hidden="true">
+    <div class="modal-panel library-modal-panel" role="dialog" aria-modal="true" aria-labelledby="libraryTitle">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow">Library</div>
+          <h2 id="libraryTitle">Choose a training preset</h2>
+          <p class="muted">Pick a coach agent and template. The main page updates immediately.</p>
+        </div>
+        <button id="closeLibraryBtn" class="icon-btn" type="button" aria-label="Close library">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="difficultyFilters" class="filter-row"></div>
+      <div class="library-modal-scroll">
+        <div id="libraryGrid" class="library-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="promptModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-panel modal-panel-wide" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow">Voice movement report</div>
+          <h2 id="promptTitle">ChatGPT feedback prompt</h2>
+          <p class="muted">Copy this prompt after you stop recording and paste it into ChatGPT.</p>
+        </div>
+        <div class="modal-actions">
+          <button id="copyPromptBtn" class="ghost-btn compact-btn" type="button">
+            <i class="fa-regular fa-copy"></i> Copy prompt
+          </button>
+          <button id="closePromptBtn" class="icon-btn" type="button" aria-label="Close prompt">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <pre id="promptModalContent" class="report-preview modal-report">No report yet. Finish a recording to generate a self-contained report.</pre>
+    </div>
+  </div>
+
+  <div id="summaryModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-panel modal-panel-wide" role="dialog" aria-modal="true" aria-labelledby="summaryTitle">
+      <div class="modal-head">
+        <div>
+          <div class="eyebrow">Session overview</div>
+          <h2 id="summaryTitle">Latest saved session</h2>
+        </div>
+        <button id="closeSummaryBtn" class="icon-btn" type="button" aria-label="Close summary">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="summary-modal-grid">
+        <section class="modal-section">
+          <h3>Latest saved session</h3>
+          <div id="sessionSummary" class="summary-list">
+            <div class="summary-row"><span>No saved session yet</span><b>--</b></div>
+          </div>
+          <div id="audioPlaybackBox"></div>
+        </section>
+
+        <section class="modal-section">
+          <h3>Most repeated words</h3>
+          <div class="table-wrap summary-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Word</th>
+                  <th>Count</th>
+                  <th>Avg Hz</th>
+                  <th>Avg dB</th>
+                </tr>
+              </thead>
+              <tbody id="wordStatsBody">
+                <tr><td colspan="4">No words yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/speech.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
